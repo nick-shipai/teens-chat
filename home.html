@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>TEENS CHAT</title>
+    <link rel="stylesheet" href="home.css">
+</head>
+<body>
+    <!-- Top Menu -->
+    <header class="top-menu">
+        <div class="container">
+            <nav class="nav-links">
+                <a href="#" id="menu-icon">
+                    <img src="menu.png" alt="Menu">
+                </a>
+                <a href="#">
+                    <img src="message.png" alt="Messages">
+                </a>
+                <a href="#">
+                    <img src="friend.png" alt="Friends">
+                </a>
+                <a href="#" id="not">
+                    <img src="bell.png" alt="Notifications">
+                </a>
+                <div id="profile">
+                    <img src="" alt="Profile Picture" id="profilePic">
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Slider Menu -->
+    <div id="slider-menu" class="slider-menu">
+        <nav>
+            <a href="#">ROOMS</a>
+            <a href="#">Settings</a>
+            <a href="#">Logout</a>
+        </nav>
+    </div>
+
+    <!-- Iframe for General Chat -->
+    <div class="iframe-container">
+        <iframe src="generalChat.html" id="chat-frame" frameborder="0"></iframe>
+    </div>
+    <div id="banedDiv" style="display: none;">
+        Account is banned.
+    </div>
+    
+    <!-- Profile Div -->
+    <div id="profileDiv" style="display: none;">
+        <iframe src="profile.html" id="profile-frame" frameborder="0"></iframe>
+    </div>
+
+    <script type="module">
+        import { getDatabase, ref, get, onValue } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqgNC5BXxtHMnc-oMhQ0QhLYg18oAG3QA",
+            authDomain: "teens-f3fc7.firebaseapp.com",
+            projectId: "teens-f3fc7",
+            storageBucket: "teens-f3fc7.appspot.com",
+            messagingSenderId: "828565874604",
+            appId: "1:828565874604:web:83ce3266202b4cd4b1fc09"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // Function to get a query parameter by name
+        function getQueryParameter(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        const uid = getQueryParameter('uid');
+
+        // Update iframe src with uid parameter if available
+        const chatFrame = document.getElementById('chat-frame');
+        const profilePic = document.getElementById('profilePic');  // Reference to the profilePic element
+        const banedDiv = document.getElementById('banedDiv');  // Reference to the banedDiv element
+
+        // Listen for authentication state changes
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const uid = user.uid; // Get the authenticated user's UID
+                // Fetch user data from Firebase and listen for real-time changes
+                const userRef = ref(db, 'users/' + uid);
+                onValue(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        console.log("User Data:", userData); // Use the user data for your UI
+
+                        // Set the profile picture if available
+                        profilePic.src = userData.profilePic || "profile.png";  // Default if no profile pic
+
+                        // Check if the user is banned and show the banned message
+                        if (userData.accountStatus === 'banned') {
+                            banedDiv.style.display = 'block';  // Show the banned div
+                        } else {
+                            banedDiv.style.display = 'none';  // Hide the banned div if not banned
+                        }
+                    } else {
+                        console.log("No data available for this user.");
+                    }
+                });
+
+                // Update the iframe src with the uid parameter if available
+                if (uid) {
+                    chatFrame.src = `generalChat.html?uid=${uid}`;
+                }
+            } else {
+                // User is not authenticated, handle locked mode (e.g., hide profilePic or redirect)
+                profilePic.src = "profile.png";  // Display a locked profile picture
+                console.log("User not authenticated, lock mode activated.");
+                // Redirect to login page if not authenticated
+                window.location.href = "login.html"; // Redirect to login page
+            }
+        });
+
+        // Open the profile div when the profile icon is clicked
+        const profile = document.getElementById('profile');
+        const profileDiv = document.getElementById('profileDiv');
+        const profileFrame = document.getElementById('profile-frame');
+
+        profile.addEventListener('click', () => {
+            if (uid) {
+                profileFrame.src = `profile.html?uid=${uid}`;
+            }
+            profileDiv.style.display = 'block';  // Show the profile div
+            history.pushState({ screen: 'profile' }, "Profile", "#profile"); // Push profile state
+        });
+
+        // Listen for back button (popstate event)
+        window.addEventListener('popstate', (event) => {
+            if (event.state && event.state.screen === 'profile') {
+                // Show profile screen if navigating back to it
+                profileDiv.style.display = 'block';
+            } else {
+                // Hide profileDiv on other states
+                profileDiv.style.display = 'none';
+            }
+        });
+
+        // Ensure there's a default state for the main chat view
+        window.addEventListener('load', () => {
+            if (!location.hash) {
+                history.replaceState({ screen: 'main' }, "Main", location.pathname);
+            }
+        });
+    </script>
+
+    <script>
+        // Select elements
+        const menuIcon = document.getElementById('menu-icon');
+        const sliderMenu = document.getElementById('slider-menu');
+
+        // Open the slider menu when clicking the menu icon
+        menuIcon.addEventListener('click', () => {
+            sliderMenu.classList.toggle('active');
+        });
+
+        // Close the slider menu when clicking outside the slider menu
+        document.addEventListener('click', (e) => {
+            if (!sliderMenu.contains(e.target) && !menuIcon.contains(e.target)) {
+                sliderMenu.classList.remove('active');
+            }
+        });
+
+        // Swipe functionality for opening the slider menu (for mobile)
+        let startX;
+        document.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+        });
+
+        document.addEventListener('touchend', (e) => {
+            let endX = e.changedTouches[0].clientX;
+            if (startX - endX > 100) {  // Swipe left to open
+                sliderMenu.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>

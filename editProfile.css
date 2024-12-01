@@ -1,0 +1,72 @@
+#container {
+        font-family: 'Roboto', sans-serif;
+        
+}
+body {
+    background-color: white;
+    text-align: center;
+    
+}
+#title {
+    font-size: 30px;
+}
+#uploadPic, #save {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(90deg, #ff6b81, #ff9f43);
+    border: none;
+    border-radius: 25px;
+    cursor: none;
+    overflow: hidden;
+    transition: background 0.4s ease;
+}
+#uploadPic:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 105, 135, 0.4);
+}
+#uploadPic:active {
+    background: linear-gradient(90deg, #ff9f43, #ff6b81);
+}
+#editUserInput {
+    width: 300px;
+    height: 40px;
+    border: 1px solid black;
+    outline: none;
+    border-radius: 5px;
+    font-size: 20px;
+    font-family: 'Roboto', sans-serif;
+}
+#editUserInput:focus {
+   
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+#label {
+    text-align: left;
+    margin-left: 20px;
+    font-weight: bold;
+    font-size: 20px;
+}
+#gender, #age {
+    width: 307px;
+    height: 40px;
+    border: 1px solid black;
+    outline: none;
+    border-radius: 5px;
+    font-size: 20px;
+    font-family: 'Roboto', sans-serif;
+    background: white;
+}
+#save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 105, 135, 0.4);
+}
+#save:active {
+    background: linear-gradient(90deg, #ff9f43, #ff6b81);
+}

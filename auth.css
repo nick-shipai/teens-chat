@@ -1,0 +1,324 @@
+/* Basic Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background: url('https://images.pexels.com/photos/1059787/pexels-photo-1059787.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260') center/cover no-repeat;
+    color: white;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* Background Styling */
+.background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: -1;
+}
+
+.bubbles span {
+    position: absolute;
+    bottom: -150px;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 50%;
+    animation: bubble 15s linear infinite;
+    filter: blur(2px);
+}
+
+.bubbles span:nth-child(2) {
+    left: 20%;
+    width: 60px;
+    height: 60px;
+    animation-duration: 18s;
+}
+
+.bubbles span:nth-child(3) {
+    left: 40%;
+    width: 30px;
+    height: 30px;
+    animation-duration: 12s;
+    animation-delay: 3s;
+}
+
+.bubbles span:nth-child(4) {
+    left: 60%;
+    width: 50px;
+    height: 50px;
+    animation-duration: 20s;
+}
+
+.bubbles span:nth-child(5) {
+    left: 80%;
+    width: 25px;
+    height: 25px;
+    animation-duration: 14s;
+    animation-delay: 5s;
+}
+
+.bubbles span:nth-child(6) {
+    left: 90%;
+    width: 35px;
+    height: 35px;
+    animation-duration: 16s;
+    animation-delay: 2s;
+}
+
+/* Bubble Animations */
+@keyframes bubble {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-1000px);
+        opacity: 0;
+    }
+}
+
+/* Form Container Styling */
+.container {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.form-container {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 30px;
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Header Styling */
+h1 {
+    margin-bottom: 20px;
+    font-size: 2rem;
+    background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Tabs Styling */
+.tabs {
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.tabs button {
+    flex: 1;
+    background: none;
+    border: 2px solid transparent;
+    color: white;
+    font-size: 1rem;
+    padding: 10px;
+    cursor: none;
+    transition: background 0.3s, color 0.3s, border 0.3s;
+    border-radius: 10px;
+}
+
+.tabs button.active {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid #ff6b81;
+    color: #ff6b81;
+}
+
+/* Forms Styling */
+form {
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    animation: slideIn 0.5s ease-in-out;
+}
+
+form.active-form {
+    display: flex;
+}
+
+@keyframes slideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+input {
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    outline: none;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transition: all 0.3s;
+}
+
+input:focus {
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+button[type="submit"] {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(90deg, #ff6b81, #ff9f43);
+    border: none;
+    border-radius: 25px;
+    cursor: none;
+    overflow: hidden;
+    transition: background 0.4s ease;
+}
+
+button[type="submit"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 105, 135, 0.4);
+}
+button[type="submit"]:active {
+    background: linear-gradient(90deg, #ff9f43, #ff6b81);
+}
+/* Age Input Styling */
+/* Age Input Styling */
+.age-input {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.age-input label {
+    font-size: 1rem;
+    color: white;
+    text-align: left;
+}
+
+.age-input input[type="range"] {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    outline: none;
+    transition: background 0.3s;
+}
+
+.age-input input[type="range"]:focus {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.age-value {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-top: 5px;
+}
+/* Gender Input Styling */
+.gender-input {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.gender-input label {
+    font-size: 1rem;
+    color: white;
+    text-align: left;
+}
+
+.gender-input select {
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s;
+    outline: none;
+}
+
+.gender-input select:focus {
+    background: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+/* Sign-Up Button Animation */
+#signupButton {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background: linear-gradient(90deg, #ff6b81, #ff9f43);
+    border: none;
+    border-radius: 25px;
+    cursor: none;
+    overflow: hidden;
+    transition: background 0.4s ease;
+}
+
+#signupButton:active {
+    background: linear-gradient(90deg, #ff9f43, #ff6b81);
+}
+
+#signupButton .button-text {
+    transition: opacity 0.3s ease;
+}
+
+#signupButton .button-loader {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #fff;
+    border-radius: 50%;
+    display: none;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

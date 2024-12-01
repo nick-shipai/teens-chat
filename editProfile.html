@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="editProfile.css">
+</head>
+<body>
+    <div id="container">
+        <div id="title">EDIT PROFILE</div><br><br><br><br><br>
+        <button id="uploadPic">UPLOAD PROFILE PICTURE</button><br>
+        <div id="fileName"></div><br><br><br>
+        <div id="label">Change Username</div><br>
+        <input type="text" id="editUserInput" placeholder="CHANGE USERNAME" disabled><br><br><br>
+        <div id="label">Change Gender</div><br>
+        <select id="gender">
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select><br><br><br>
+        <div id="label">Edit Age</div><br>
+        <select id="age">
+            <option>13</option>
+            <option>14</option>
+            <option>15</option>
+            <option>16</option>
+            <option>17</option>
+            <option>18</option>
+            <option>19</option>
+        </select><br><br><br>
+        <button id="save">Save Changes</button>
+    </div>
+
+    <input type="file" id="fileInput" style="display:none;">
+
+    <script type="module">
+        import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqgNC5BXxtHMnc-oMhQ0QhLYg18oAG3QA",
+            authDomain: "teens-f3fc7.firebaseapp.com",
+            projectId: "teens-f3fc7",
+            storageBucket: "teens-f3fc7.appspot.com",
+            messagingSenderId: "828565874604",
+            appId: "1:828565874604:web:83ce3266202b4cd4b1fc09"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        let profilePicURL = ''; // Temporary variable to store the profile picture URL
+        let currentUserData = {}; // To store current user data from Firebase
+
+        // Get user information from Firebase Authentication (lock mode)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const uid = user.uid; // Get the authenticated user's UID
+
+                // Reference to the user's data in Firebase Realtime Database
+                const userRef = ref(db, 'users/' + uid);
+
+                // Fetch the user data from Firebase
+                get(userRef).then((snapshot) => {
+                    if (snapshot.exists()) {
+                        currentUserData = snapshot.val(); // Store current user data
+                        document.getElementById('editUserInput').value = currentUserData.username || ''; 
+                        document.getElementById('gender').value = currentUserData.gender || 'Male'; 
+                        document.getElementById('age').value = currentUserData.age || '13'; 
+
+                        // Enable/Disable the username field based on the account type
+                        const editableAccounts = ['svip', 'admin', 'sadmin', 'lord', 'owner'];
+                        if (editableAccounts.includes(currentUserData.account)) {
+                            document.getElementById('editUserInput').disabled = false;
+                        }
+
+                    } else {
+                        console.error("No user data found.");
+                    }
+                }).catch((error) => {
+                    console.error("Error fetching user data:", error);
+                });
+            } else {
+                console.log("User is not authenticated.");
+                window.location.href = "login.html"; // Redirect to login page if not authenticated
+            }
+        });
+
+        // Handle file input for profile picture upload
+        document.getElementById('uploadPic').addEventListener('click', () => {
+            document.getElementById('fileInput').click(); // Trigger file input on button click
+        });
+
+        // Handle file selection and upload to Firebase Storage
+        document.getElementById('fileInput').addEventListener('change', (event) => {
+            const file = event.target.files[0]; // Get the selected file
+            if (file) {
+                const storageReference = storageRef(storage, 'profile_pics/' + file.name); // Reference to where the image will be stored
+                uploadBytes(storageReference, file).then((snapshot) => {
+                    // Get the download URL after upload is complete
+                    getDownloadURL(snapshot.ref).then((downloadURL) => {
+                        console.log('File available at', downloadURL);
+
+                        // Display file name in the UI
+                        document.getElementById('fileName').textContent = file.name;
+
+                        // Store the profile picture URL temporarily
+                        profilePicURL = downloadURL;
+                    }).catch((error) => {
+                        console.error("Error getting download URL:", error);
+                    });
+                }).catch((error) => {
+                    console.error("Error uploading file:", error);
+                });
+            }
+        });
+
+        // Handle saving only the changed user profile data (username, gender, age, profile picture)
+        document.getElementById('save').addEventListener('click', () => {
+            const user = auth.currentUser;
+            if (user) {
+                const uid = user.uid;
+                const userRef = ref(db, 'users/' + uid);
+
+                const newData = {};
+
+                // Compare and add only changed values
+                const newUsername = document.getElementById('editUserInput').value || '';
+                if (newUsername !== currentUserData.username) newData.username = newUsername;
+
+                const newGender = document.getElementById('gender').value || 'Male';
+                if (newGender !== currentUserData.gender) newData.gender = newGender;
+
+                const newAge = document.getElementById('age').value || '13';
+                if (newAge !== currentUserData.age) newData.age = newAge;
+
+                // Only update profilePic if it's changed
+                if (profilePicURL && profilePicURL !== currentUserData.profilePic) {
+                    newData.profilePic = profilePicURL;
+                }
+
+                // Update the user data if any change has been made
+                if (Object.keys(newData).length > 0) {
+                    set(userRef, { ...currentUserData, ...newData }).then(() => {
+                        console.log("Profile updated successfully!");
+                        profilePicURL = ''; // Reset the temporary variable after save
+                        currentUserData = { ...currentUserData, ...newData }; // Update the current user data
+                    }).catch((error) => {
+                        console.error("Error saving user data:", error);
+                    });
+                } else {
+                    console.log("No changes made to update.");
+                }
+            }
+        });
+    </script>
+</body>
+</html>

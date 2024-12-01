@@ -1,0 +1,82 @@
+#container {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    background-color: white;
+}
+#profilePicDiv {
+    background-color: #d2d2d2;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    margin-left: 35%;
+    border: 5px solid black;
+}
+#profilePic {
+    height: 100px;
+    width: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+body {
+    background-color: white;
+}
+#username {
+    font-size: 35px;
+}
+#editPro, #wallet {
+    background-color: #d2d2d2;
+    height: 50px;
+    display: flex;
+    justify-content: flex-start;
+    border: 0px solid black;
+    border-radius: 3px;
+}
+#text {
+    font-weight: bold;
+    font-size: 30px;
+    margin-left: 10px;
+    margin-top: 7px;
+}
+#editProDiv {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    display: none;
+}
+
+#profile-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+#editbar {
+    background-color: #d2d2d2;
+    height: 30px;
+    display: flex;
+    justify-content: flex-start;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    position: flex;
+    z-index: 1000;
+    
+   
+}
+#editbar span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-left: 20px;
+    margin-top: 5px;
+}
+#editbar img {
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+    margin-left: 4px;
+}

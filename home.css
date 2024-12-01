@@ -1,0 +1,183 @@
+/* Basic reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
+    height: 100vh; /* Ensure body takes full viewport height */
+}
+
+/* Top menu styling */
+.top-menu {
+   background-color: #fff;
+   position: fixed;
+   width: 100%;
+   top: 0;
+   z-index: 10;
+   height: 10vh; /* 10% of viewport height */
+}
+
+/* Container for menu */
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    height: 10vh; /* Restrict the height of the menu to 10% of viewport height */
+    width: 100%;
+}
+
+/* Navigation links styling */
+.nav-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #ff6b81;
+}
+
+img {
+    height: 30px;
+    width: 30px;
+}
+
+/* Profile styling */
+#profile {
+    height: 50px;
+    width: 50px;
+    background-color: #d2d2d2;
+    border-radius: 50%;
+}
+#profilePic {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+}
+/* Slider menu styles */
+.slider-menu {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100vh;
+    background-color: #f5f5f5;
+    transition: left 0.3s ease-in-out;
+    z-index: 20;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.slider-menu nav {
+    display: flex;
+    flex-direction: column;
+    padding-top: 60px;
+}
+
+.slider-menu a {
+    color: #333;
+    padding: 15px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.slider-menu a:hover {
+    background-color: #ddd;
+}
+
+/* When the slider is active (opened) */
+.slider-menu.active {
+    left: 0;
+}
+
+/* Iframe styling */
+.iframe-container {
+    position: fixed;
+    top: 10vh; /* Starts below the top menu */
+    bottom: 0; /* Extends to the bottom */
+    left: 0;
+    right: 0;    
+    background-color: black;
+    overflow-y: auto; /* Enable scrolling for profile screen */
+    z-index: 1; /* Ensure it stays below the bottom menu */
+}
+
+/* Iframe should fill the entire iframe container */
+#chat-frame {
+    position: absolute;
+    top: 0; /* Aligns to the top of iframe container */
+    left: 0; /* Aligns to the left of iframe container */
+    width: 100%; /* Takes full width of iframe container */
+    height: 100%; /* Takes full height of iframe container */
+    border: none; /* No border for iframe */
+    background-color: #fff;
+    overflow-y: auto; /* Allow scrolling inside the iframe */
+    box-sizing: border-box;
+}
+#profileDiv {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    display: none;
+}
+
+#profile-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+#probar {
+    background-color: #d2d2d2;
+    height: 30px;
+    display: flex;
+    justify-content: flex-start;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    
+   
+}
+#probar span {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-left: 20px;
+    margin-top: 5px;
+}
+#probar img {
+    height: 24px;
+    width: 24px;
+    cursor: pointer;
+    margin-left: 4px;
+}
+#banedDiv {
+    background-color: white;
+    position: fixed; /* Fix it to the viewport */
+    top: 0; /* Align it to the top */
+    left: 0; /* Align it to the left */
+    width: 100vw; /* Cover the entire viewport width */
+    height: 100vh; /* Cover the entire viewport height */
+    z-index: 1000; /* Ensure it stays on top of other elements */
+    display: none;
+    
+}

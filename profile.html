@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="profile.css">
+    <title>Profile</title>
+</head>
+<body>
+    <div id="container">
+        <div id="picName">
+            <div id="profilePicDiv">
+                <img src="profile.png" alt="" id="profilePic">
+            </div><br>
+            <div id="username">_ _</div>
+        </div><br><br><br><br>
+
+        <div id="editPro" onclick="openEditPro()">
+            <div id="text">EDIT PROFILE</div>
+        </div><br>
+        <div id="wallet">
+            <div id="text">WALLET</div>
+        </div>
+
+        <!-- Edit Profile Popup -->
+        <div id="editProDiv" style="display: none;">
+            <div id="editbar">
+                <br>
+                <img src="back.png" alt="Back" onclick="closeProScreen()">
+                <span>Edit Profile</span>
+            </div>
+            <iframe id="profile-frame" frameborder="0"></iframe>
+        </div>
+    </div>
+
+    <script type="module">
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqgNC5BXxtHMnc-oMhQ0QhLYg18oAG3QA",
+            authDomain: "teens-f3fc7.firebaseapp.com",
+            projectId: "teens-f3fc7",
+            storageBucket: "teens-f3fc7.appspot.com",
+            messagingSenderId: "828565874604",
+            appId: "1:828565874604:web:83ce3266202b4cd4b1fc09"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        const usernameElement = document.getElementById('username');
+        const profilePicElement = document.getElementById('profilePic');
+        const profileFrame = document.getElementById('profile-frame');
+        let currentUserId = null; // Store the current user's UID
+
+        // Check if the user is authenticated
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const uid = user.uid; // Get the authenticated user's UID
+                currentUserId = uid;
+
+                // Fetch user data from Firebase and listen for real-time changes
+                const userRef = ref(db, 'users/' + uid);
+                onValue(userRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const userData = snapshot.val();
+                        // Update the UI with the user data
+                        usernameElement.textContent = userData.username || '_ _';
+                        profilePicElement.src = userData.profilePic || 'profile.png';  // Default if no profile pic
+                    } else {
+                        console.log("No data available for this user.");
+                    }
+                });
+            } else {
+                // User is not authenticated
+                console.log("User is not authenticated.");
+                window.location.href = "login.html"; // Redirect to login page
+            }
+        });
+
+        // Open the edit profile screen
+        window.openEditPro = function() {
+            if (currentUserId) {
+                profileFrame.src = `editProfile.html?uid=${currentUserId}`;
+                document.getElementById('editProDiv').style.display = 'block';
+            } else {
+                console.error("User ID is not available.");
+            }
+        }
+
+        // Close the edit profile screen
+        window.closeProScreen = function() {
+            document.getElementById('editProDiv').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

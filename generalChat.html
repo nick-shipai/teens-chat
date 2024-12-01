@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="generalChat.css">
+    <title>GENERAL CHAT</title>
+</head>
+<body>
+    <div id="container">
+        <div id="chat-space" class="chat-box">
+            <!-- Chat messages will appear here -->
+        </div>
+        <div id="chat-header">
+            <div id="chat-work">
+                <div id="addDiv">
+                    <img src="add.png" alt="Add" id="add">
+                </div>
+                <div id="slideDiv">
+                    <img src="upload.png" alt="Upload" id="upload">
+                    <img src="emojii.png" alt="Emoji" id="bigEmo">
+                </div>
+                <textarea id="sendMes" placeholder="Type a message"></textarea>
+                <div id="addEmo">
+                    <img src="emoji.png" alt="Emoji" id="emoji">
+                </div>
+                <div id="recordDiv">
+                    <img src="record.png" alt="Record" id="record">
+                    <img src="send1.png" alt="" id="send1" style="display: none;">
+                </div>
+            </div>
+        </div>
+
+        <!-- Formatting toolbar -->
+        <div id="formatting-toolbar" style="display: none;">
+            <button id="bold">B</button>
+            <button id="italic">I</button>
+            <button id="monospace">M</button>
+        </div>
+        
+    </div>
+
+    <!-- File input for upload (hidden) -->
+    <input type="file" id="fileInput" style="display: none;" accept="image/*, video/*, audio/*" />
+
+  <script>
+    const textArea = document.getElementById('sendMes');
+    const recordIcon = document.getElementById('record');
+    const recordDiv = document.getElementById('recordDiv');
+    const addButton = document.getElementById('add');
+    const slideDiv = document.getElementById('slideDiv');
+    const addDiv = document.getElementById('addDiv');
+    const emojiIcon = document.getElementById('emoji');
+    const chatSpace = document.getElementById('chat-space');
+    const uploadButton = document.getElementById('upload');
+    const fileInput = document.getElementById('fileInput');
+    const formattingToolbar = document.getElementById('formatting-toolbar');
+    const boldButton = document.getElementById('bold');
+    const italicButton = document.getElementById('italic');
+    const monospaceButton = document.getElementById('monospace');
+    const sendAudio = document.getElementById('send1');
+
+    // Handle upload button click to open the file input
+    uploadButton.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', 'user');
+            const chatBubble = document.createElement('div');
+            chatBubble.classList.add('chat-bubble', 'user');
+            if (file.type.startsWith('image')) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.style.maxWidth = '100%';
+                img.style.width = '100px';
+                img.style.maxHeight = '200px';
+                img.style.objectFit = 'contain';
+                chatBubble.appendChild(img);
+            } else if (file.type.startsWith('video')) {
+                const video = document.createElement('video');
+                video.src = URL.createObjectURL(file);
+                video.controls = true;
+                video.style.maxWidth = '100%';
+                video.style.maxHeight = '350px';
+                video.style.borderRadius = '5px';
+                video.style.objectFit = 'contain';
+                chatBubble.appendChild(video);
+            } else if (file.type.startsWith('audio')) {
+            const audioPlayer = document.createElement('div');
+            audioPlayer.classList.add('audio-player');
+            const audio = document.createElement('audio');
+            audio.src = URL.createObjectURL(file);
+
+            // Create a timestamp element that will show the full duration of the audio file
+            const timestamp = document.createElement('span');
+            timestamp.classList.add('audio-timestamp');
+            timestamp.style.color = 'black';
+
+            const audioRange = document.createElement('input');
+            audioRange.type = 'range';
+            audioRange.classList.add('audio-range');
+            audioRange.value = 0;
+
+            const playButton = document.createElement('img');
+            playButton.src = 'play.png';
+            playButton.alt = 'Play';
+            playButton.classList.add('audio-btn', 'play');
+
+            const pauseButton = document.createElement('img');
+            pauseButton.src = 'pause.png';
+            pauseButton.alt = 'Pause';
+            pauseButton.classList.add('audio-btn', 'pause');
+            pauseButton.style.display = 'none';  // Hide pause button initially
+
+            // Update the timestamp to the duration of the audio once it is loaded
+            audio.addEventListener('loadedmetadata', () => {
+                const durationMinutes = Math.floor(audio.duration / 60);
+                const durationSeconds = Math.floor(audio.duration % 60).toString().padStart(2, '0');
+                timestamp.textContent = `${durationMinutes}:${durationSeconds}`;  // Set initial timestamp to audio's duration
+            });
+
+            // Reset the timestamp to 0:00 when play is clicked
+            playButton.addEventListener('click', () => {
+                audio.play();
+                playButton.style.display = 'none';
+                pauseButton.style.display = 'inline';
+                timestamp.textContent = '0:00';  // Reset timestamp to 0:00 at the start
+            });
+
+            // Update timestamp and range slider during playback
+            audio.addEventListener('timeupdate', () => {
+                const minutes = Math.floor(audio.currentTime / 60);
+                const seconds = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+                timestamp.textContent = `${minutes}:${seconds}`;  // Update timestamp during playback
+                audioRange.value = (audio.currentTime / audio.duration) * 100;
+            });
+
+            // Handle audio seek via slider
+            audioRange.addEventListener('input', () => {
+                const seekTime = (audioRange.value / 100) * audio.duration;
+                audio.currentTime = seekTime;
+            });
+
+            // Handle the pause functionality
+            pauseButton.addEventListener('click', () => {
+                audio.pause();
+                playButton.style.display = 'inline';  // Show play button again
+                pauseButton.style.display = 'none';  // Hide pause button
+            });
+
+            // Append elements for audio player
+            audioPlayer.appendChild(audio);
+            audioPlayer.appendChild(playButton);
+            audioPlayer.appendChild(pauseButton);
+            audioPlayer.appendChild(timestamp);
+            audioPlayer.appendChild(audioRange);
+
+            // Append the audio player to the chat bubble
+            chatBubble.appendChild(audioPlayer);
+        }
+
+        messageDiv.appendChild(chatBubble);
+        chatSpace.appendChild(messageDiv);
+
+        // Scroll to the bottom after adding a new message
+        chatSpace.scrollTop = chatSpace.scrollHeight;
+    }
+});
+let recorder;
+let audioChunks = [];
+let isRecording = false;
+let recordingStatusDiv;
+let recordingTimer;
+let seconds = 0;
+let recordingId = 0; 
+
+// Create the recording status div (hidden by default)
+recordingStatusDiv = document.createElement('div');
+recordingStatusDiv.id = 'recording-status';
+recordingStatusDiv.style.display = 'none'; 
+recordingStatusDiv.innerHTML = `
+    <div id="record-ani"></div>
+    <span id="recording-text">Recording...</span>
+`;
+document.body.appendChild(recordingStatusDiv);
+
+// Handle the 'mousedown' event to start recording
+recordIcon.addEventListener('mousedown', async () => {
+    if (!isRecording) {
+        // Start recording
+        isRecording = true;
+        audioChunks = [];
+        seconds = 0;
+        recordingStatusDiv.style.display = 'block';  // Show the recording div
+        recordIcon.style.display = 'none'; // Hide the record icon
+        sendAudio.style.display = 'block'; // Show the send button
+        startRecordingTimer();  // Start the timer to show elapsed time
+
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recorder = new MediaRecorder(stream);
+
+        recorder.ondataavailable = (event) => {
+            audioChunks.push(event.data);
+        };
+
+        recorder.onstop = () => {
+            // Create the audio file once recording stops
+            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioUrl = URL.createObjectURL(audioBlob);
+
+            // Create a new audio element for this recording
+            const audioElement = document.createElement('audio');
+            audioElement.src = audioUrl;
+            audioElement.style.display = 'none';  // Hide the audio element itself
+
+            // Ensure audio is fully loaded before accessing its duration
+            audioElement.addEventListener('canplaythrough', () => {
+                const totalDuration = Math.floor(audioElement.duration);
+                if (totalDuration <= 0) {
+                    timestamp.textContent = "0:00";  // Fallback to 0 if duration is invalid
+                } else {
+                    timestamp.textContent = `${totalDuration}s`;  // Display total duration in seconds
+                }
+            });
+
+            // Create play/pause buttons for this recording
+            const playButton = document.createElement('img');
+            playButton.src = 'play.png';
+            playButton.alt = 'Play';
+            playButton.classList.add('audio-btn', 'play');
+            
+            const pauseButton = document.createElement('img');
+            pauseButton.src = 'pause.png';
+            pauseButton.alt = 'Pause';
+            pauseButton.classList.add('audio-btn', 'pause');
+            pauseButton.style.display = 'none';  // Hide pause button initially
+
+            // Timestamp display for the audio (initially shows total duration in seconds)
+            const timestamp = document.createElement('span');
+            timestamp.classList.add('audio-timestamp');
+            timestamp.style.color = 'black';
+
+            // Audio range slider for this recording
+            const audioRange = document.createElement('input');
+            audioRange.type = 'range';
+            audioRange.classList.add('audio-range');
+            audioRange.value = 0;
+
+            // Assign a unique ID for this recording
+            recordingId++;
+            const uniqueId = `recording-${recordingId}`;
+
+            // Handle play/pause functionality for this recording
+            playButton.addEventListener('click', () => {
+                if (audioElement.paused) {
+                    audioElement.play();
+                    playButton.style.display = 'none';  // Hide play button
+                    pauseButton.style.display = 'inline';  // Show pause button
+                    timestamp.textContent = '0:00';  // Reset timestamp to 0:00 at start
+                } else {
+                    audioElement.pause();
+                    playButton.style.display = 'inline';  // Show play button
+                    pauseButton.style.display = 'none';  // Hide pause button
+                }
+            });
+
+            // Update timestamp and range slider during playback
+            audioElement.addEventListener('timeupdate', () => {
+                const minutes = Math.floor(audioElement.currentTime / 60);
+                const seconds = Math.floor(audioElement.currentTime % 60).toString().padStart(2, '0');
+                timestamp.textContent = `${minutes}:${seconds}`;  // Update timestamp during playback
+                audioRange.value = (audioElement.currentTime / audioElement.duration) * 100;
+            });
+
+            // Handle audio seek via slider
+            audioRange.addEventListener('input', () => {
+                const seekTime = (audioRange.value / 100) * audioElement.duration;
+                audioElement.currentTime = seekTime;
+            });
+
+            // Reset play/pause buttons when the audio ends
+            audioElement.addEventListener('ended', () => {
+                playButton.style.display = 'inline';  // Show play button again
+                pauseButton.style.display = 'none';  // Hide pause button again
+                timestamp.textContent = `${totalDuration}s`;  // Reset timestamp to total duration at the end
+            });
+
+            // Create chat bubble to display the recorded audio with play/pause controls
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', 'user');
+            messageDiv.id = uniqueId; // Set unique ID for the message
+            const chatBubble = document.createElement('div');
+            chatBubble.classList.add('chat-bubble', 'user');
+            chatBubble.appendChild(playButton);
+            chatBubble.appendChild(pauseButton);
+            chatBubble.appendChild(timestamp);
+            chatBubble.appendChild(audioRange);
+            chatBubble.appendChild(audioElement); // Append the hidden audio element
+
+            messageDiv.appendChild(chatBubble);
+            chatSpace.appendChild(messageDiv);
+            chatSpace.scrollTop = chatSpace.scrollHeight;
+
+            // Hide the recording status once the recording stops
+            recordingStatusDiv.style.display = 'none';
+        };
+
+        recorder.start();
+    }
+});
+
+// Handle the 'mouseup' event to stop recording and send
+sendAudio.addEventListener('click', () => {
+    if (isRecording) {
+        // Stop recording (this will trigger the onstop callback)
+        isRecording = false;
+        recorder.stop();
+        
+        // Hide sendAudio button and show recordIcon again
+        sendAudio.style.display = 'none';
+        recordIcon.style.display = 'block';
+    }
+});
+
+function startRecordingTimer() {
+    const recordingTimeElement = document.getElementById('recording-time');
+    if (!recordingTimeElement) {
+        console.error('The recording-time element was not found!');
+        return;
+    }
+
+    recordingTimer = setInterval(() => {
+        if (isRecording) {
+            seconds++;
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            const formattedTime = `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            recordingTimeElement.textContent = formattedTime;
+        } else {
+            clearInterval(recordingTimer);
+        }
+    }, 1000);  // Update every second
+}
+
+// Add a fallback for record button if the browser doesn't support media devices
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    alert("Your browser does not support audio recording.");
+}
+ 
+ 
+</script>
+    <script src="otherFuc.js"></script>
+    <script type="module" id="firebase-script">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+  import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBqgNC5BXxtHMnc-oMhQ0QhLYg18oAG3QA",
+    authDomain: "teens-f3fc7.firebaseapp.com",
+    projectId: "teens-f3fc7",
+    storageBucket: "teens-f3fc7.appspot.com",
+    messagingSenderId: "828565874604",
+    appId: "1:828565874604:web:83ce3266202b4cd4b1fc09"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  // Assign sendMessage to window.sendMessage
+  window.sendMessage = function() {
+    const message = document.getElementById('sendMes').value.trim();
+    if (!message) return;
+
+    const user = auth.currentUser;
+    if (user) {
+      const uid = user.uid;
+
+      // Get user details from 'users/uid' in Firebase
+      const userRef = ref(db, 'users/' + uid);
+      get(userRef).then((snapshot) => {
+        if (snapshot.exists()) {
+          const userData = snapshot.val();
+          const username = userData.username || "Unknown User";
+          const profilePic = userData.profilePic || "default-profile-pic.png";
+
+          // Get current timestamp
+          const time = new Date().toISOString();
+
+          // Reference to the 'groupChat' node in Firebase Realtime Database
+          const groupChatRef = ref(db, 'groupChat/');
+
+          // Push the new message to Firebase
+          push(groupChatRef, {
+            uid: uid,
+            message: message,
+            time: time,
+            username: username,
+            profilePic: profilePic
+          }).then(() => {
+            console.log('Message sent successfully');
+            // Optionally, clear the message input field after sending
+            document.getElementById('sendMes').value = '';
+          }).catch((error) => {
+            console.error('Error sending message: ', error);
+          });
+        } else {
+          console.log('No user data found');
+        }
+      }).catch((error) => {
+        console.error('Error fetching user data: ', error);
+      });
+    } else {
+      console.log('No user is logged in');
+    }
+  };
+  
+  // Add a function to fetch and display the messages
+window.fetchMessage = function() {
+  // Reference to the 'groupChat' node in Firebase Realtime Database
+  const groupChatRef = ref(db, 'groupChat/');
+
+  onValue(groupChatRef, (snapshot) => {
+    if (snapshot.exists()) {
+      // Clear existing chat space content before adding the updated messages
+      chatSpace.innerHTML = '';
+
+      snapshot.forEach((childSnapshot) => {
+        const messageData = childSnapshot.val();
+        const { uid, message, time, username, profilePic } = messageData;
+
+        // Create a new message div
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message');
+        
+        // Create username and profile image
+        const usernameDiv = document.createElement('div');
+        usernameDiv.classList.add('username');
+        usernameDiv.textContent = username;  // Set username
+        
+        const profileImageDiv = document.createElement('div');
+        profileImageDiv.classList.add('profile-image');
+        const profileImg = document.createElement('img');
+        profileImg.src = profilePic || 'default-profile-pic.png'; // Use default image if no profile pic is available
+        profileImg.alt = 'Profile Image';
+        profileImg.id = 'profileImg';
+        profileImageDiv.appendChild(profileImg);
+
+        // Create the message content
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('message-container');
+
+        const chatBubble = document.createElement('div');
+        chatBubble.classList.add('chat-bubble', 'user');
+        chatBubble.textContent = message;
+
+        messageDiv.appendChild(profileImageDiv);
+        messageDiv.appendChild(usernameDiv);
+        messageDiv.appendChild(messageContainer);
+        messageContainer.appendChild(chatBubble);
+
+        chatSpace.appendChild(messageDiv);
+      });
+
+      // Scroll to the bottom after fetching new messages
+      chatSpace.scrollTop = chatSpace.scrollHeight;
+    } else {
+      console.log('No messages available');
+    }
+  });
+};
+
+// Call the function to fetch messages when the page loads
+window.fetchMessage();
+
+
+  // Textarea event listener for showing send icon when text is entered
+  const textArea = document.getElementById('sendMes');
+  const recordDiv = document.getElementById('recordDiv');
+  const recordIcon = document.getElementById('recordIcon');
+
+  textArea.addEventListener('input', () => {
+    if (textArea.value.trim().length > 0) {
+      if (!document.getElementById('send')) {
+        const sendIcon = document.createElement('img');
+        sendIcon.src = 'send.png';
+        sendIcon.alt = 'Send';
+        sendIcon.id = 'send';
+        recordDiv.appendChild(sendIcon);
+
+        sendIcon.addEventListener('click', window.sendMessage);  // Use window.sendMessage
+      }
+    }
+  });
+
+  // Listen for Auth state changes
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log('User is logged in:', user.displayName);
+    } else {
+      console.log('No user is logged in');
+    }
+  });
+</script>
+</body>
+</html>
