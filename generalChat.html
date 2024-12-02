@@ -9,7 +9,7 @@
 </head>
 <body>
     <div id="container">
-        <div id="chat-space" class="chat-box">
+        <div id="chatSpace" class="chat-box">
             <!-- Chat messages will appear here -->
         </div>
         <div id="chat-header">
@@ -60,118 +60,6 @@
     const italicButton = document.getElementById('italic');
     const monospaceButton = document.getElementById('monospace');
     const sendAudio = document.getElementById('send1');
-
-    // Handle upload button click to open the file input
-    uploadButton.addEventListener('click', () => {
-        fileInput.click();
-    });
-
-    // Handle file selection
-    fileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('chat-message', 'user');
-            const chatBubble = document.createElement('div');
-            chatBubble.classList.add('chat-bubble', 'user');
-            if (file.type.startsWith('image')) {
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.style.maxWidth = '100%';
-                img.style.width = '100px';
-                img.style.maxHeight = '200px';
-                img.style.objectFit = 'contain';
-                chatBubble.appendChild(img);
-            } else if (file.type.startsWith('video')) {
-                const video = document.createElement('video');
-                video.src = URL.createObjectURL(file);
-                video.controls = true;
-                video.style.maxWidth = '100%';
-                video.style.maxHeight = '350px';
-                video.style.borderRadius = '5px';
-                video.style.objectFit = 'contain';
-                chatBubble.appendChild(video);
-            } else if (file.type.startsWith('audio')) {
-            const audioPlayer = document.createElement('div');
-            audioPlayer.classList.add('audio-player');
-            const audio = document.createElement('audio');
-            audio.src = URL.createObjectURL(file);
-
-            // Create a timestamp element that will show the full duration of the audio file
-            const timestamp = document.createElement('span');
-            timestamp.classList.add('audio-timestamp');
-            timestamp.style.color = 'black';
-
-            const audioRange = document.createElement('input');
-            audioRange.type = 'range';
-            audioRange.classList.add('audio-range');
-            audioRange.value = 0;
-
-            const playButton = document.createElement('img');
-            playButton.src = 'play.png';
-            playButton.alt = 'Play';
-            playButton.classList.add('audio-btn', 'play');
-
-            const pauseButton = document.createElement('img');
-            pauseButton.src = 'pause.png';
-            pauseButton.alt = 'Pause';
-            pauseButton.classList.add('audio-btn', 'pause');
-            pauseButton.style.display = 'none';  // Hide pause button initially
-
-            // Update the timestamp to the duration of the audio once it is loaded
-            audio.addEventListener('loadedmetadata', () => {
-                const durationMinutes = Math.floor(audio.duration / 60);
-                const durationSeconds = Math.floor(audio.duration % 60).toString().padStart(2, '0');
-                timestamp.textContent = `${durationMinutes}:${durationSeconds}`;  // Set initial timestamp to audio's duration
-            });
-
-            // Reset the timestamp to 0:00 when play is clicked
-            playButton.addEventListener('click', () => {
-                audio.play();
-                playButton.style.display = 'none';
-                pauseButton.style.display = 'inline';
-                timestamp.textContent = '0:00';  // Reset timestamp to 0:00 at the start
-            });
-
-            // Update timestamp and range slider during playback
-            audio.addEventListener('timeupdate', () => {
-                const minutes = Math.floor(audio.currentTime / 60);
-                const seconds = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
-                timestamp.textContent = `${minutes}:${seconds}`;  // Update timestamp during playback
-                audioRange.value = (audio.currentTime / audio.duration) * 100;
-            });
-
-            // Handle audio seek via slider
-            audioRange.addEventListener('input', () => {
-                const seekTime = (audioRange.value / 100) * audio.duration;
-                audio.currentTime = seekTime;
-            });
-
-            // Handle the pause functionality
-            pauseButton.addEventListener('click', () => {
-                audio.pause();
-                playButton.style.display = 'inline';  // Show play button again
-                pauseButton.style.display = 'none';  // Hide pause button
-            });
-
-            // Append elements for audio player
-            audioPlayer.appendChild(audio);
-            audioPlayer.appendChild(playButton);
-            audioPlayer.appendChild(pauseButton);
-            audioPlayer.appendChild(timestamp);
-            audioPlayer.appendChild(audioRange);
-
-            // Append the audio player to the chat bubble
-            chatBubble.appendChild(audioPlayer);
-        }
-
-        messageDiv.appendChild(chatBubble);
-        chatSpace.appendChild(messageDiv);
-
-        // Scroll to the bottom after adding a new message
-        chatSpace.scrollTop = chatSpace.scrollHeight;
-    }
-});
 let recorder;
 let audioChunks = [];
 let isRecording = false;
@@ -360,6 +248,7 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
   import { getDatabase, ref, set, push, onValue, get } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyBqgNC5BXxtHMnc-oMhQ0QhLYg18oAG3QA",
@@ -390,7 +279,7 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         if (snapshot.exists()) {
           const userData = snapshot.val();
           const username = userData.username || "Unknown User";
-          const profilePic = userData.profilePic || "default-profile-pic.png";
+          const profilePic = userData.profilePic || "profile.png";
 
           // Get current timestamp
           const time = new Date().toISOString();
@@ -422,65 +311,6 @@ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       console.log('No user is logged in');
     }
   };
-  
-  // Add a function to fetch and display the messages
-window.fetchMessage = function() {
-  // Reference to the 'groupChat' node in Firebase Realtime Database
-  const groupChatRef = ref(db, 'groupChat/');
-
-  onValue(groupChatRef, (snapshot) => {
-    if (snapshot.exists()) {
-      // Clear existing chat space content before adding the updated messages
-      chatSpace.innerHTML = '';
-
-      snapshot.forEach((childSnapshot) => {
-        const messageData = childSnapshot.val();
-        const { uid, message, time, username, profilePic } = messageData;
-
-        // Create a new message div
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('chat-message');
-        
-        // Create username and profile image
-        const usernameDiv = document.createElement('div');
-        usernameDiv.classList.add('username');
-        usernameDiv.textContent = username;  // Set username
-        
-        const profileImageDiv = document.createElement('div');
-        profileImageDiv.classList.add('profile-image');
-        const profileImg = document.createElement('img');
-        profileImg.src = profilePic || 'default-profile-pic.png'; // Use default image if no profile pic is available
-        profileImg.alt = 'Profile Image';
-        profileImg.id = 'profileImg';
-        profileImageDiv.appendChild(profileImg);
-
-        // Create the message content
-        const messageContainer = document.createElement('div');
-        messageContainer.classList.add('message-container');
-
-        const chatBubble = document.createElement('div');
-        chatBubble.classList.add('chat-bubble', 'user');
-        chatBubble.textContent = message;
-
-        messageDiv.appendChild(profileImageDiv);
-        messageDiv.appendChild(usernameDiv);
-        messageDiv.appendChild(messageContainer);
-        messageContainer.appendChild(chatBubble);
-
-        chatSpace.appendChild(messageDiv);
-      });
-
-      // Scroll to the bottom after fetching new messages
-      chatSpace.scrollTop = chatSpace.scrollHeight;
-    } else {
-      console.log('No messages available');
-    }
-  });
-};
-
-// Call the function to fetch messages when the page loads
-window.fetchMessage();
-
 
   // Textarea event listener for showing send icon when text is entered
   const textArea = document.getElementById('sendMes');
@@ -509,6 +339,271 @@ window.fetchMessage();
       console.log('No user is logged in');
     }
   });
+
+  // Ensure file input trigger is working for image and audio
+  document.getElementById('upload').addEventListener('click', function() {
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+      fileInput.click();
+    } else {
+      console.error('File input element not found!');
+    }
+  });
+
+  // Event listener for file input change (when user selects a file)
+  document.getElementById('fileInput').addEventListener('change', function() {
+    const file = this.files[0];  // Get the selected file
+    if (!file) {
+      alert('No file selected');
+      return;
+    }
+
+    const user = auth.currentUser;
+    if (user) {
+      const uid = user.uid;
+
+      // Check if the file is an image or audio and handle accordingly
+      const fileType = file.type.split('/')[0]; // 'image' or 'audio'
+
+      const storage = getStorage();
+      const fileRef = storageRef(storage, `chat-files/${file.name}`);
+
+      // Upload the file to Firebase Storage
+      uploadBytes(fileRef, file).then((snapshot) => {
+        console.log('File uploaded successfully:', snapshot);
+
+        // Get the download URL for the uploaded file
+        getDownloadURL(snapshot.ref).then((url) => {
+          console.log('File available at', url);
+
+          // Get user details from Firebase Realtime Database
+          const userRef = ref(db, 'users/' + uid);
+          get(userRef).then((snapshot) => {
+            if (snapshot.exists()) {
+              const userData = snapshot.val();
+              const username = userData.username || "Unknown User";
+              const profilePic = userData.profilePic || "profile.png";
+
+              // Get the current timestamp
+              const time = new Date().toISOString();
+
+              // Reference to the 'groupChat' node in Firebase Realtime Database
+              const groupChatRef = ref(db, 'groupChat/');
+
+              // Push the new file message to Firebase
+              if (fileType === 'image') {
+                // Handle image file message
+                push(groupChatRef, {
+                  uid: uid,
+                  picture: url,  // Save the URL of the uploaded image
+                  username: username,
+                  profilePic: profilePic,
+                  time: time
+                }).then(() => {
+                  console.log('Image message sent successfully');
+                }).catch((error) => {
+                  console.error('Error sending image message: ', error);
+                });
+              } else if (fileType === 'audio') {
+                // Handle audio file message
+                push(groupChatRef, {
+                  uid: uid,
+                  audio: url,  // Save the URL of the uploaded audio
+                  username: username,
+                  profilePic: profilePic,
+                  time: time
+                }).then(() => {
+                  console.log('Audio message sent successfully');
+                }).catch((error) => {
+                  console.error('Error sending audio message: ', error);
+                });
+              }
+            } else {
+              console.log('No user data found');
+            }
+          }).catch((error) => {
+            console.error('Error fetching user data: ', error);
+          });
+        }).catch((error) => {
+          console.error('Error getting download URL: ', error);
+        });
+      }).catch((error) => {
+        console.error('Error uploading file: ', error);
+      });
+    } else {
+      console.log('No user is logged in');
+    }
+  });
+
+  window.fetchAll = function () {
+  // Reference to the 'groupChat' node in Firebase Realtime Database
+  const groupChatRef = ref(db, 'groupChat/');
+
+  // Ensure that 'chatSpace' element exists before attempting to append messages
+  const chatSpace = document.getElementById('chatSpace');
+  if (!chatSpace) {
+    console.error('Chat space element not found');
+    return;
+  }
+
+  onValue(groupChatRef, (snapshot) => {
+    if (snapshot.exists()) {
+      // Clear existing chat space content before adding the updated messages
+      chatSpace.innerHTML = '';
+
+      snapshot.forEach((childSnapshot) => {
+        const messageData = childSnapshot.val();
+        const { uid, message, picture, audio, username, profilePic, time } = messageData;
+
+        // Create a message div to hold each individual message
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('chat-message');
+
+        // Create the message-container
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('message-container');
+
+        // Create the profile image container
+        const profileImageDiv = document.createElement('div');
+        profileImageDiv.classList.add('profile-image');
+        const profileImg = document.createElement('img');
+        profileImg.src = profilePic || 'profile.png'; // Use default image if no profile pic is available
+        profileImg.alt = 'Profile Image';
+        profileImageDiv.appendChild(profileImg);
+
+        // Check if the message contains an audio file
+        if (audio) {
+          // Create the chat bubble for the audio
+          const chatBubble = document.createElement('div');
+          chatBubble.classList.add('chat-bubble', 'user');
+
+          const audioPlayer = document.createElement('div');
+          audioPlayer.classList.add('audio-player');
+
+          const audioElement = document.createElement('audio');
+          audioElement.src = audio; // Set the audio URL from Firebase
+          audioElement.preload = 'metadata'; // Preload metadata for duration
+          audioElement.style.display = 'none'; // Hide the native audio element
+
+          // Create custom audio controls
+          const timestamp = document.createElement('span');
+          timestamp.classList.add('audio-timestamp');
+          timestamp.style.color = 'black';
+
+          const audioRange = document.createElement('input');
+          audioRange.type = 'range';
+          audioRange.classList.add('audio-range');
+          audioRange.value = 0;
+
+          const playButton = document.createElement('img');
+          playButton.src = 'play.png';
+          playButton.alt = 'Play';
+          playButton.classList.add('audio-btn', 'play');
+
+          const pauseButton = document.createElement('img');
+          pauseButton.src = 'pause.png';
+          pauseButton.alt = 'Pause';
+          pauseButton.classList.add('audio-btn', 'pause');
+          pauseButton.style.display = 'none'; // Hide pause button initially
+
+          // Update timestamp and slider when metadata is loaded
+          audioElement.addEventListener('loadedmetadata', () => {
+            const durationMinutes = Math.floor(audioElement.duration / 60);
+            const durationSeconds = Math.floor(audioElement.duration % 60).toString().padStart(2, '0');
+            timestamp.textContent = `${durationMinutes}:${durationSeconds}`;
+          });
+
+          // Play button functionality
+          playButton.addEventListener('click', () => {
+            audioElement.play();
+            playButton.style.display = 'none';
+            pauseButton.style.display = 'inline';
+          });
+
+          // Pause button functionality
+          pauseButton.addEventListener('click', () => {
+            audioElement.pause();
+            playButton.style.display = 'inline';
+            pauseButton.style.display = 'none';
+          });
+
+          // Update range slider and timestamp during playback
+          audioElement.addEventListener('timeupdate', () => {
+            const minutes = Math.floor(audioElement.currentTime / 60);
+            const seconds = Math.floor(audioElement.currentTime % 60).toString().padStart(2, '0');
+            timestamp.textContent = `${minutes}:${seconds}`;
+            audioRange.value = (audioElement.currentTime / audioElement.duration) * 100;
+          });
+
+          // Handle seeking via range slider
+          audioRange.addEventListener('input', () => {
+            const seekTime = (audioRange.value / 100) * audioElement.duration;
+            audioElement.currentTime = seekTime;
+          });
+
+          // Append controls to the audio player
+          audioPlayer.appendChild(audioElement);
+          audioPlayer.appendChild(playButton);
+          audioPlayer.appendChild(pauseButton);
+          audioPlayer.appendChild(timestamp);
+          audioPlayer.appendChild(audioRange);
+
+          // Append the audio player to the chat bubble
+          chatBubble.appendChild(audioPlayer);
+
+          // Append the profile image and chat bubble to the message-container
+          messageContainer.appendChild(profileImageDiv);
+          messageContainer.appendChild(chatBubble);
+
+        } else if (picture) {
+          // Create chat bubble for images
+          const chatBubble = document.createElement('div');
+          chatBubble.classList.add('chat-bubble', 'user');
+
+          const img = document.createElement('img');
+          img.src = picture; // Use the image URL from Firebase
+          img.style.width = 'auto'; // Maintain aspect ratio
+          img.style.maxWidth = '80%'; // Allow the image to scale but not overflow
+          img.style.maxHeight = '400px'; // Allow larger height while preserving aspect ratio
+          img.style.objectFit = 'contain'; // Maintain aspect ratio
+
+          chatBubble.appendChild(img);
+          messageContainer.appendChild(profileImageDiv);
+          messageContainer.appendChild(chatBubble);
+
+        } else if (message) {
+          // Create chat bubble for text
+          const chatBubble = document.createElement('div');
+          chatBubble.classList.add('chat-bubble', 'user');
+          chatBubble.textContent = message;
+
+          messageContainer.appendChild(profileImageDiv);
+          messageContainer.appendChild(chatBubble);
+        }
+
+        // Add username at the top of the message container
+        const usernameDiv = document.createElement('div');
+        usernameDiv.classList.add('username');
+        usernameDiv.textContent = username || 'Unknown User';
+        messageDiv.appendChild(usernameDiv);
+
+        // Append the message-container to the main message div
+        messageDiv.appendChild(messageContainer);
+
+        // Append the message div to the chat space
+        chatSpace.appendChild(messageDiv);
+      });
+
+      // Scroll to the bottom after fetching new messages
+      chatSpace.scrollTop = chatSpace.scrollHeight;
+    } else {
+      console.log('No messages available');
+    }
+  });
+};
+
+// Call the function to fetch all types of messages
+window.fetchAll();
 </script>
 </body>
 </html>
