@@ -138,7 +138,7 @@ h1 {
     color: white;
     font-size: 1rem;
     padding: 10px;
-    cursor: none;
+    cursor: pointer;
     transition: background 0.3s, color 0.3s, border 0.3s;
     border-radius: 10px;
 }
