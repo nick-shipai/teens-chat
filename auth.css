@@ -201,7 +201,6 @@ button[type="submit"] {
     background: linear-gradient(90deg, #ff6b81, #ff9f43);
     border: none;
     border-radius: 25px;
-    cursor: none;
     overflow: hidden;
     transition: background 0.4s ease;
 }
