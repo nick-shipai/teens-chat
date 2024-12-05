@@ -24,6 +24,13 @@
             textArea.setRangeText(boldText, textArea.selectionStart, textArea.selectionEnd, 'select');
             formattingToolbar.style.display = 'none';
         });
+        
+        bubbleButton.addEventListener('click', () => {
+            const selectedText = textArea.value.substring(textArea.selectionStart, textArea.selectionEnd);
+            const bubbleText = `<bubble>${selectedText}</bubble>`;
+            textArea.setRangeText(bubbleText, textArea.selectionStart, textArea.selectionEnd, 'select');
+            formattingToolbar.style.display = 'none';
+        });
 
         // Apply italic formatting
         italicButton.addEventListener('click', () => {

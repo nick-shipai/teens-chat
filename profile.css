@@ -30,6 +30,7 @@ body {
     justify-content: flex-start;
     border: 0px solid black;
     border-radius: 3px;
+    cursor: pointer;
 }
 #text {
     font-weight: bold;

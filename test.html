@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bouncing Light Shadow Text</title>
+    <style>
+         
+
+        div {
+            font-size: 4rem;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            position: relative;
+            animation: bounceLight 5s infinite;
+        }
+
+        div::before {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            color: transparent;
+            text-shadow: 2px 2px 5px #f39c12, -2px -2px 5px #e74c3c, 2px -2px 5px #3498db, -2px 2px 5px #2ecc71;
+            animation: shadowBounce 5s infinite ease-in-out;
+        }
+
+        @keyframes bounceLight {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes shadowBounce {
+            0%, 100% {
+                text-shadow: 2px 2px 5px #f39c12, -2px -2px 5px #e74c3c, 2px -2px 5px #3498db, -2px 2px 5px #2ecc71;
+            }
+            50% {
+                text-shadow: 5px 5px 15px #f39c12, -5px -5px 15px #e74c3c, 5px -5px 15px #3498db, -5px 5px 15px #2ecc71;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+    <div data-text="Light Bounce">Light Bounce</div>
+    </container>
+</body>
+</html>

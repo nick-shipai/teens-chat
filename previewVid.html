@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authenticated Video Preview</title>
+    <link rel="stylesheet" href="preview.css">
+    <script type="module">
+        // Import Firebase SDKs
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+        import { getStorage, ref as storageRef, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqgNC5BXxtHMnc-oMhQ0QhLYg18oAG3QA",
+            authDomain: "teens-f3fc7.firebaseapp.com",
+            projectId: "teens-f3fc7",
+            storageBucket: "teens-f3fc7.appspot.com",
+            messagingSenderId: "828565874604",
+            appId: "1:828565874604:web:83ce3266202b4cd4b1fc09"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const storage = getStorage(app);
+
+        // Helper function to format time in "minutes:seconds"
+        const formatTime = (seconds) => {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        };
+
+        // Function to enable seeking
+        const enableSeeking = (videoElement, rangeContainer, rangeElement, durationDisplay) => {
+            rangeContainer.addEventListener('click', (e) => {
+                const rect = rangeContainer.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickPercent = clickX / rect.width;
+                videoElement.currentTime = clickPercent * videoElement.duration;
+            });
+
+            rangeContainer.addEventListener('mousemove', (e) => {
+                if (e.buttons === 1) {
+                    const rect = rangeContainer.getBoundingClientRect();
+                    const dragX = e.clientX - rect.left;
+                    const dragPercent = dragX / rect.width;
+                    videoElement.currentTime = dragPercent * videoElement.duration;
+                }
+            });
+        };
+
+        // Function to load the video
+        const loadVideo = (videoUrl) => {
+            const videoElement = document.getElementById('preVid');
+            const playButton = document.getElementById('play');
+            const durationDisplay = document.getElementById('duration');
+            const totalDurationDisplay = document.getElementById('totalDura');
+            const rangeElement = document.getElementById('range');
+            const rangeContainer = document.getElementById('rangeCon');
+            const loader = document.getElementById('loader');
+            const playThumbnail = document.getElementById('playThumbnail');
+
+            loader.style.display = 'block';
+
+            getDownloadURL(storageRef(storage, videoUrl))
+                .then((url) => {
+                    videoElement.src = url;
+
+                    videoElement.addEventListener('loadedmetadata', () => {
+                        loader.style.display = 'none';
+                        const totalSeconds = Math.floor(videoElement.duration);
+                        totalDurationDisplay.textContent = formatTime(totalSeconds);
+
+                        enableSeeking(videoElement, rangeContainer, rangeElement, durationDisplay);
+                    });
+
+                    // Play thumbnail functionality
+                    playThumbnail.addEventListener('click', () => {
+                        playThumbnail.style.display = 'none';
+                        videoElement.play();
+                    });
+
+                    // Auto-play functionality
+                    videoElement.addEventListener('play', () => {
+                        playButton.src = 'pause.png';
+                        playThumbnail.style.display = 'none';
+                    });
+
+                    // Pause functionality
+                    videoElement.addEventListener('pause', () => {
+                        playButton.src = 'play.png';
+                        if (videoElement.currentTime === 0) {
+                            playThumbnail.style.display = 'block';
+                        }
+                    });
+
+                    videoElement.addEventListener('waiting', () => loader.style.display = 'block');
+                    videoElement.addEventListener('playing', () => loader.style.display = 'none');
+
+                    // Play button functionality
+                    playButton.addEventListener('click', () => {
+                        if (videoElement.paused) {
+                            videoElement.play();
+                        } else {
+                            videoElement.pause();
+                        }
+                    });
+
+                    videoElement.addEventListener('timeupdate', () => {
+                        const currentSeconds = Math.floor(videoElement.currentTime);
+                        const totalSeconds = Math.floor(videoElement.duration);
+                        durationDisplay.textContent = formatTime(currentSeconds);
+                        const progress = (currentSeconds / totalSeconds) * 100;
+                        rangeElement.style.width = `${progress}%`;
+                    });
+                })
+                .catch((err) => {
+                    loader.style.display = 'none';
+                    console.error(`Failed to load video from Firebase: ${err.message}`);
+                    alert(`Failed to load video. Please check the file path.\nError: ${err.message}`);
+                });
+        };
+
+        // Authenticate and load video
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                const params = new URLSearchParams(window.location.search);
+                const videoPath = params.get('url');
+                if (videoPath) {
+                    loadVideo(decodeURIComponent(videoPath));
+                } else {
+                    alert('No video URL provided in the query string.');
+                }
+            } else {
+                signInAnonymously(auth).catch((err) => {
+                    console.error("Error during anonymous sign-in:", err.message);
+                    alert(`Authentication failed: ${err.message}`);
+                });
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="container">
+        <div id="top-bar">
+            <img src="back.png" alt="back" id="back">
+        </div>
+        <div id="preVidCon">
+            <!-- Loading animation -->
+            <div id="loader">
+                <svg class="spinner" viewBox="0 0 50 50">
+                    <circle class="path" cx="25" cy="25" r="20" fill="none" stroke-width="5"></circle>
+                </svg>
+            </div>
+            <!-- Play thumbnail -->
+            <img id="playThumbnail" src="thubPlay.png" alt="Play">
+            <!-- Video element without default controls -->
+            <video 
+                id="preVid" 
+                muted 
+                preload="metadata" 
+                disablePictureInPicture 
+                controlslist="nodownload noplaybackrate" 
+                autoplay
+            ></video>
+        </div>
+        <div id="controls">
+            <img id="play" src="play.png" alt="Play">
+            <div id="duration">0:00</div>
+            <div id="rangeCon">
+                <div id="range"></div>
+            </div>
+            <div id="totalDura">0:00</div>
+        </div>
+    </div>
+</body>
+</html>

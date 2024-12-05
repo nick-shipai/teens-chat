@@ -1,0 +1,139 @@
+#top-bar {
+    background-color: #d2d2d2;
+    position: sticky;
+    top: 0;
+    left: 0; /* Ensure it starts from the left edge */
+    right: 0; /* Ensure it spans the full width */
+    width: 100%;
+    z-index: 10;
+    height: 5vh;
+}
+#back {
+    height: 30px;
+    width: 30px;
+    margin-left: -320px;
+}
+body {
+    margin: 0; /* Remove default body margin */
+    overflow-x: hidden; /* Disable horizontal scrolling */ background-color: white;
+}
+
+#preVid {
+    width: 100%;
+    height: 100%;
+}
+
+#container {
+    overflow-x: hidden;
+    text-align: center;
+}
+
+#preVidCon {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 100px;
+    background-color: rgba(0, 0, 0, 0.7);
+  l.  display: flex; /* Enable flexbox for centering */
+    justify-content: center;
+    align-items: center;
+}
+
+#controls {
+    background-color: white;
+    position: fixed; /* Keep it fixed at the bottom */
+    bottom: 0; /* Align at the bottom of the viewport */
+    left: 0; /* Ensure it starts from the left edge */
+    right: 0; /* Ensure it spans the full width */
+    width: 100%;
+    z-index: 10;
+    height: 100px;
+    display: flex;
+    
+}
+#play {
+    height: 30px;
+    margin-top: 30px;
+    margin-left: 5px;
+}
+#duration, #totalDura {
+    height: 30px;
+    margin-top: 38px;
+    margin-left: 2px;
+}
+   #rangeCon {
+             background-color: #d2d2d2;
+             height: 4px;
+             border-radius: 10px;
+             border: 0px solid black;
+             width: 250px;
+             margin-top: 43px;
+             margin-left: 7px;
+         }
+         #range {
+             background-color: black;
+             height: 4px;
+             border-radius: 10px;
+             width: 1px;
+         }
+#loader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50px;
+    height: 50px;
+    z-index: 1000; /* Ensure it's above the play thumbnail */
+    display: none; /* Hidden by default */
+}
+
+
+.spinner {
+    width: 100%;
+    height: 100%;
+    animation: rotate 2s linear infinite; /* Spinner rotates after drawing */
+    
+}
+
+.path {
+    stroke: white;
+    stroke-linecap: round;
+    animation: draw 1.5s ease-in-out infinite;
+    stroke-dasharray: 0, 126; /* Adjust values for the drawing effect */
+}
+
+/* Circle drawing animation */
+@keyframes draw {
+    0% {
+        stroke-dasharray: 0, 126;
+    }
+    50% {
+        stroke-dasharray: 63, 126; /* Half-circle */
+    }
+    100% {
+        stroke-dasharray: 126, 126; /* Full circle */
+    }
+}
+
+/* Spinner rotation after drawing completes */
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#playThumbnail {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 15%;
+    height: 400px;
+    width: 400px;
+    cursor: pointer;
+    z-index: 999; /* Keep below the loader */
+}
